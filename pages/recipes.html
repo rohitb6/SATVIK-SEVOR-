@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Recipes - Satvik Savor</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .recipes-container {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .recipes-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .recipes-header h1 {
+            color: var(--sage-green);
+            margin-bottom: 16px;
+        }
+
+        .recipes-header p {
+            color: var(--deep-navy);
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--sage-green);
+            background: transparent;
+            color: var(--sage-green);
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: var(--font-primary);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--sage-green);
+            color: white;
+        }
+
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .recipe-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(107, 142, 113, 0.2);
+        }
+
+        .recipe-image {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, var(--sage-green), var(--saffron-orange));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            color: white;
+        }
+
+        .recipe-content {
+            padding: 20px;
+        }
+
+        .recipe-category {
+            display: inline-block;
+            background: var(--mint-green);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .recipe-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--deep-navy);
+            margin-bottom: 10px;
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: var(--soft-gray);
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .recipe-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .recipe-ingredients-preview {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .view-recipe-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--sage-green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: var(--font-primary);
+        }
+
+        .view-recipe-btn:hover {
+            background: var(--deep-navy);
+        }
+
+        .recipe-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .recipe-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 40px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--deep-navy);
+            background: none;
+            border: none;
+        }
+
+        .modal-close:hover {
+            color: var(--sage-green);
+        }
+
+        .modal-ingredients {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .modal-ingredients h4 {
+            color: var(--sage-green);
+            margin-bottom: 15px;
+        }
+
+        .modal-ingredients ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .modal-ingredients li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+        }
+
+        .modal-ingredients li:last-child {
+            border-bottom: none;
+        }
+
+        .modal-ingredients li:before {
+            content: "✓";
+            color: var(--sage-green);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .modal-instructions {
+            margin: 20px 0;
+        }
+
+        .modal-instructions h4 {
+            color: var(--sage-green);
+            margin-bottom: 15px;
+        }
+
+        .modal-instructions ol {
+            padding-left: 20px;
+        }
+
+        .modal-instructions li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .recipe-tips {
+            background: var(--cream-white);
+            padding: 15px;
+            border-left: 4px solid var(--saffron-orange);
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .recipe-tips h5 {
+            color: var(--saffron-orange);
+            margin-bottom: 10px;
+        }
+
+        .recipe-tips p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .recipes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
+
+            .filters {
+                gap: 8px;
+            }
+
+            .filter-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="../index.html">
+                    <img src="../assets/images/satviklogo.png" alt="Satvik Sevor Logo" class="logo-image">
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="../index.html" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="about.html" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="features.html" class="nav-link">Features</a></li>
+                <li class="nav-item"><a href="recipes.html" class="nav-link active-nav">Recipes</a></li>
+                <li class="nav-item"><a href="../index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="nav-cta">Get Started</button>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Recipes Section -->
+    <section class="recipes-container">
+        <div class="recipes-header">
+            <h1>🍛 Indian Food Recipes</h1>
+            <p>Explore authentic Indian recipes and maintain perfect taste consistency with Satvik Savor. Ensure your dishes are perfectly balanced every time.</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All Recipes</button>
+            <button class="filter-btn" data-filter="breakfast">Breakfast</button>
+            <button class="filter-btn" data-filter="lunch">Lunch & Dinner</button>
+            <button class="filter-btn" data-filter="appetizer">Appetizers</button>
+            <button class="filter-btn" data-filter="dessert">Desserts</button>
+        </div>
+
+        <!-- Recipes Grid -->
+        <div class="recipes-grid" id="recipesGrid">
+            <!-- Recipes will be populated by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Recipe Modal -->
+    <div class="recipe-modal" id="recipeModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 id="modalTitle" style="color: var(--sage-green); margin-top: 0;"></h2>
+            
+            <div class="modal-ingredients">
+                <h4>📋 Ingredients</h4>
+                <ul id="modalIngredients"></ul>
+            </div>
+
+            <div class="modal-instructions">
+                <h4>👨‍🍳 Instructions</h4>
+                <ol id="modalInstructions"></ol>
+            </div>
+
+            <div class="recipe-tips">
+                <h5>💡 Satvik Savor Tip</h5>
+                <p id="modalTip"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2026 Satvik Savor. All rights reserved. | Maintaining Flavor Consistency Across India</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a> | <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Recipe Database
+        const recipes = [
+            {
+                id: 1,
+                name: "Butter Chicken (Murgh Makhani)",
+                emoji: "🍗",
+                category: "lunch",
+                cuisine: "North Indian",
+                prepTime: "30 mins",
+                cookTime: "40 mins",
+                servings: "4",
+                description: "Tender chicken pieces cooked in a creamy tomato-based sauce with butter and cream.",
+                ingredients: [
+                    "1 kg chicken, cut into pieces",
+                    "1 cup yogurt",
+                    "2 tbsp ginger-garlic paste",
+                    "1 onion, finely chopped",
+                    "4 tomatoes, pureed",
+                    "200 ml heavy cream",
+                    "4 tbsp butter",
+                    "2 tbsp oil",
+                    "1 tsp red chili powder",
+                    "1/2 tsp turmeric",
+                    "1 tsp garam masala",
+                    "Salt to taste",
+                    "Fresh coriander for garnish"
+                ],
+                instructions: [
+                    "Marinate chicken in yogurt, ginger-garlic paste, and spices for 30 minutes.",
+                    "Heat oil in a pan and cook chicken until golden. Remove and set aside.",
+                    "In the same pan, sauté onions until golden brown.",
+                    "Add tomato puree and cook until oil separates from the mixture.",
+                    "Add butter, cream, and garam masala.",
+                    "Return chicken to the pan and simmer for 15-20 minutes on medium heat.",
+                    "Garnish with fresh coriander and serve hot with naan or rice.",
+                ],
+                tip: "Use Satvik Savor to monitor the salt and spice balance in the sauce. Maintain consistency across batches for uniform taste at your restaurant or catering service."
+            },
+            {
+                id: 2,
+                name: "Biryani (Hyderabadi)",
+                emoji: "🍚",
+                category: "lunch",
+                cuisine: "Hyderabadi",
+                prepTime: "45 mins",
+                cookTime: "50 mins",
+                servings: "6",
+                description: "Fragrant rice dish with meat, aromatic spices, and yogurt - a royal delicacy.",
+                ingredients: [
+                    "500g mutton or chicken",
+                    "2 cups basmati rice",
+                    "1 cup yogurt",
+                    "4 onions, thinly sliced",
+                    "6 green chilies",
+                    "1/4 cup mint leaves",
+                    "1/4 cup coriander leaves",
+                    "4 tbsp ghee",
+                    "2 tbsp oil",
+                    "1 tbsp ginger-garlic paste",
+                    "1 tsp garam masala",
+                    "1/2 tsp red chili powder",
+                    "1/4 tsp turmeric",
+                    "Whole spices: bay leaf, cinnamon, cardamom, cloves",
+                    "Salt to taste"
+                ],
+                instructions: [
+                    "Soak basmati rice for 30 minutes.",
+                    "Marinate meat in yogurt, ginger-garlic paste, and spices for 30 minutes.",
+                    "Heat ghee and fry onions until deep golden brown. Remove half for garnish.",
+                    "Add marinated meat to the pan with remaining onions and cook for 8-10 minutes.",
+                    "Boil water with whole spices and salt. Add soaked rice and cook until 70% done.",
+                    "In a heavy-bottomed pot, layer the marinated meat at the bottom.",
+                    "Top with the partially cooked rice, then fried onions, mint, and coriander.",
+                    "Cover and cook on high heat for 2 minutes until steam forms.",
+                    "Reduce heat to low and cook for 40 minutes.",
+                    "Let it rest for 5 minutes before opening the lid. Mix gently with a fork.",
+                ],
+                tip: "Test the biryani's salt and spice levels with Satvik Savor to ensure perfect balance every batch. This is crucial for maintaining quality in biryani chains."
+            },
+            {
+                id: 3,
+                name: "Dal Makhani",
+                emoji: "🍲",
+                category: "lunch",
+                cuisine: "North Indian",
+                prepTime: "20 mins",
+                cookTime: "90 mins",
+                servings: "4",
+                description: "Creamy lentil curry with butter and cream - a restaurant favorite.",
+                ingredients: [
+                    "1 cup black lentils (urad)",
+                    "1/4 cup kidney beans (rajma)",
+                    "4 tbsp butter",
+                    "200 ml cream",
+                    "2 onions, chopped",
+                    "2 tbsp ginger-garlic paste",
+                    "3 tomatoes, pureed",
+                    "2 green chilies",
+                    "1 tsp cumin seeds",
+                    "1 tsp garam masala",
+                    "1/2 tsp red chili powder",
+                    "1/4 tsp turmeric",
+                    "Salt to taste",
+                    "Fresh coriander"
+                ],
+                instructions: [
+                    "Soak lentils and kidney beans overnight.",
+                    "Pressure cook them until completely soft (about 45 minutes).",
+                    "Heat butter in a pan and add cumin seeds.",
+                    "Add ginger-garlic paste and cook until golden.",
+                    "Add chopped onions and cook until soft.",
+                    "Add tomato puree and cook until oil separates.",
+                    "Add cooked lentils and beans.",
+                    "Stir in cream and garam masala.",
+                    "Simmer on low heat for 30 minutes, stirring occasionally.",
+                    "Adjust salt and spice, garnish with coriander and a dollop of cream.",
+                ],
+                tip: "Measure the salt content regularly with Satvik Savor to maintain the signature creamy and perfectly seasoned taste for every serving."
+            },
+            {
+                id: 4,
+                name: "Samosa",
+                emoji: "🥟",
+                category: "appetizer",
+                cuisine: "North Indian",
+                prepTime: "60 mins",
+                cookTime: "30 mins",
+                servings: "20-24",
+                description: "Crispy fried pastry filled with spiced potatoes and peas.",
+                ingredients: [
+                    "2 cups all-purpose flour",
+                    "4 tbsp oil",
+                    "1/2 tsp salt",
+                    "Warm water for dough",
+                    "500g potatoes, boiled and mashed",
+                    "1 cup green peas",
+                    "2 tbsp oil",
+                    "1 tsp cumin seeds",
+                    "2 green chilies, finely chopped",
+                    "1 tbsp ginger, minced",
+                    "1 tsp garam masala",
+                    "1/2 tsp red chili powder",
+                    "1/4 tsp turmeric",
+                    "1 tbsp lemon juice",
+                    "Oil for frying"
+                ],
+                instructions: [
+                    "Make dough with flour, salt, oil, and water. Let it rest for 30 minutes.",
+                    "Heat oil and add cumin seeds.",
+                    "Add green chilies, ginger, and cook for 1 minute.",
+                    "Add boiled potatoes, peas, and all spices.",
+                    "Mix well and add lemon juice. Cool the filling.",
+                    "Divide dough into equal portions and roll into thin circles.",
+                    "Cut into semicircles, fill with potato mixture, and fold into triangles.",
+                    "Deep fry in hot oil until golden brown on both sides.",
+                    "Drain on paper towels and serve hot.",
+                ],
+                tip: "Use Satvik Savor to test the spice profile of the filling before frying. This ensures consistent taste across all samosas in bulk production."
+            },
+            {
+                id: 5,
+                name: "Rogan Josh",
+                emoji: "🥘",
+                category: "lunch",
+                cuisine: "Kashmir",
+                prepTime: "30 mins",
+                cookTime: "60 mins",
+                servings: "4",
+                description: "Aromatic meat curry with yogurt and fragrant spices - a Kashmiri masterpiece.",
+                ingredients: [
+                    "800g lamb or mutton, cubed",
+                    "1 cup yogurt",
+                    "3 tbsp ghee",
+                    "2 onions, sliced",
+                    "2 tbsp ginger-garlic paste",
+                    "2 tomatoes, chopped",
+                    "1 tsp cumin seeds",
+                    "4-5 green cardamom",
+                    "2 black cardamom",
+                    "1 inch cinnamon stick",
+                    "4-5 cloves",
+                    "2 bay leaves",
+                    "2 tsp ground coriander",
+                    "1 tsp ground cumin",
+                    "1 tsp garam masala",
+                    "1/2 tsp red chili powder",
+                    "Salt to taste",
+                    "Fresh coriander for garnish"
+                ],
+                instructions: [
+                    "Heat ghee and add whole spices (cumin seeds, cardamom, cinnamon, cloves, bay leaves).",
+                    "Add sliced onions and cook until golden.",
+                    "Add ginger-garlic paste and cook for 2 minutes.",
+                    "Add meat and cook for 5 minutes until browned.",
+                    "Add yogurt one spoon at a time, stirring well.",
+                    "Add tomatoes and ground spices.",
+                    "Cover and simmer on low heat for 45-50 minutes until meat is tender.",
+                    "Adjust salt and spice seasoning.",
+                    "Garnish with fresh coriander and serve with rice or bread.",
+                ],
+                tip: "Ensure perfect salt and spice balance in your Rogan Josh using Satvik Savor. This classic dish demands consistency, especially in restaurants."
+            },
+            {
+                id: 6,
+                name: "Masala Dosa",
+                emoji: "🥞",
+                category: "breakfast",
+                cuisine: "South Indian",
+                prepTime: "20 mins (with batter)",
+                cookTime: "15 mins",
+                servings: "4",
+                description: "Crispy rice and lentil crepe with spiced potato filling and coconut chutney.",
+                ingredients: [
+                    "2 cups rice",
+                    "1 cup black lentils (urad)",
+                    "1/2 tsp fenugreek seeds",
+                    "500g potatoes, boiled and cubed",
+                    "1 onion, chopped",
+                    "2 green chilies, chopped",
+                    "1 tsp mustard seeds",
+                    "1 tsp chana dal",
+                    "2 tbsp oil",
+                    "1/4 tsp turmeric",
+                    "Salt to taste",
+                    "Curry leaves"
+                ],
+                instructions: [
+                    "Soak rice, lentils, and fenugreek seeds for 4 hours.",
+                    "Grind to a smooth paste with water.",
+                    "Ferment the batter overnight.",
+                    "Heat oil in a tempering pan. Add mustard seeds and chana dal.",
+                    "Add curry leaves, then onions and green chilies.",
+                    "Add boiled potatoes and turmeric. Mix well.",
+                    "Heat an iron griddle and pour batter thinly to form a crepe.",
+                    "Spread potato filling in the center.",
+                    "Fold the dosa and serve hot with sambar and chutney.",
+                ],
+                tip: "Monitor the salt and spice levels in the potato filling with Satvik Savor to ensure every dosa has consistent taste."
+            },
+            {
+                id: 7,
+                name: "Paneer Tikka",
+                emoji: "🍗",
+                category: "appetizer",
+                cuisine: "North Indian",
+                prepTime: "30 mins",
+                cookTime: "20 mins",
+                servings: "4",
+                description: "Marinated cottage cheese cubes grilled until charred and smoky.",
+                ingredients: [
+                    "500g paneer, cubed",
+                    "1 cup yogurt",
+                    "3 tbsp oil",
+                    "2 tbsp lemon juice",
+                    "2 tbsp ginger-garlic paste",
+                    "2 green chilies, minced",
+                    "1 tbsp red chili powder",
+                    "1 tsp garam masala",
+                    "1/2 tsp turmeric",
+                    "1/2 tsp cumin powder",
+                    "Salt to taste",
+                    "1 onion, cut into chunks",
+                    "1 capsicum, cut into chunks",
+                    "Fresh coriander"
+                ],
+                instructions: [
+                    "Make marinade with yogurt, oil, lemon juice, and all spices.",
+                    "Add paneer cubes to the marinade and coat well.",
+                    "Refrigerate for at least 30 minutes.",
+                    "Preheat oven to 200°C.",
+                    "Thread marinated paneer, onion, and capsicum on skewers.",
+                    "Place on a greased baking tray and bake for 15-20 minutes.",
+                    "Turn skewers halfway through for even cooking.",
+                    "Serve with green chutney and lemon wedges.",
+                ],
+                tip: "Use Satvik Savor to test the spice and salt levels in the marinade before coating paneer to ensure perfectly seasoned tikka every time."
+            },
+            {
+                id: 8,
+                name: "Gulab Jamun",
+                emoji: "🍫",
+                category: "dessert",
+                cuisine: "North Indian",
+                prepTime: "20 mins",
+                cookTime: "30 mins",
+                servings: "12-15",
+                description: "Soft milk solids dumplings soaked in rose-flavored sugar syrup.",
+                ingredients: [
+                    "200g milk powder",
+                    "100g khoya (evaporated milk)",
+                    "4 tbsp all-purpose flour",
+                    "1/4 tsp baking soda",
+                    "2 tbsp ghee, melted",
+                    "2-3 tbsp milk",
+                    "Oil for frying",
+                    "2 cups sugar",
+                    "3 cups water",
+                    "1/2 tsp cardamom powder",
+                    "1 tsp rose essence",
+                    "A few strands of saffron"
+                ],
+                instructions: [
+                    "Mix milk powder, khoya, flour, and baking soda in a bowl.",
+                    "Add melted ghee and milk to make a soft dough.",
+                    "Roll into balls without cracks.",
+                    "Heat oil and fry balls on low heat until dark brown.",
+                    "Prepare sugar syrup by boiling sugar and water.",
+                    "Add cardamom, rose essence, and saffron to the syrup.",
+                    "Immediately immerse fried balls in hot syrup.",
+                    "Let them soak for at least 2 hours before serving.",
+                ],
+                tip: "Monitor the sweetness level of the syrup with Satvik Savor to ensure consistent taste profile across batches in your sweet shops or catering."
+            },
+            {
+                id: 9,
+                name: "Chikhalwali (Rajasthani Curry)",
+                emoji: "🌶️",
+                category: "lunch",
+                cuisine: "Rajasthani",
+                prepTime: "25 mins",
+                cookTime: "45 mins",
+                servings: "4",
+                description: "Spicy and tangy vegetable curry with dried red chilies and yogurt.",
+                ingredients: [
+                    "300g mixed vegetables (carrots, peas, beans)",
+                    "1 cup yogurt",
+                    "2 onions, chopped",
+                    "2 tbsp ginger-garlic paste",
+                    "3 dried red chilies",
+                    "1 tbsp coriander seeds",
+                    "1/2 tbsp cumin seeds",
+                    "2 tbsp oil",
+                    "1/2 tsp turmeric",
+                    "1 tsp garam masala",
+                    "1 tbsp lemon juice",
+                    "Salt to taste",
+                    "Fresh coriander"
+                ],
+                instructions: [
+                    "Roast dried red chilies and coriander seeds until fragrant.",
+                    "Grind them into a coarse powder.",
+                    "Heat oil and add cumin seeds.",
+                    "Add chopped onions and cook until golden.",
+                    "Add ginger-garlic paste and cook for 1 minute.",
+                    "Add mixed vegetables and sauté for 5 minutes.",
+                    "Add the ground spice paste and mix well.",
+                    "Add yogurt one spoon at a time, stirring constantly.",
+                    "Add turmeric and garam masala.",
+                    "Cover and simmer for 25-30 minutes on medium heat.",
+                    "Finish with lemon juice and fresh coriander.",
+                ],
+                tip: "Maintain the perfect spice-to-yogurt ratio using Satvik Savor to ensure this fiery Rajasthani curry stays consistently balanced."
+            },
+            {
+                id: 10,
+                name: "Idli",
+                emoji: "☁️",
+                category: "breakfast",
+                cuisine: "South Indian",
+                prepTime: "15 mins (with fermented batter)",
+                cookTime: "10 mins",
+                servings: "8-10",
+                description: "Soft, spongy steamed rice and lentil cakes - a healthy breakfast staple.",
+                ingredients: [
+                    "2 cups rice",
+                    "1 cup black lentils (urad)",
+                    "1/2 tsp fenugreek seeds",
+                    "1 tsp salt",
+                    "Water for grinding"
+                ],
+                instructions: [
+                    "Soak rice, lentils, and fenugreek seeds for 4 hours.",
+                    "Grind lentils and fenugreek first with water until fluffy.",
+                    "Grind rice separately until coarse.",
+                    "Mix both batters and let them ferment for 8-12 hours.",
+                    "Add salt to the fermented batter and mix well.",
+                    "Grease idli molds and pour batter.",
+                    "Steam in a steamer for 8-10 minutes.",
+                    "Cool slightly and demold onto a plate.",
+                    "Serve with sambar and coconut chutney.",
+                ],
+                tip: "While taste doesn't vary much in idli, Satvik Savor can help monitor the fermentation process by tracking salt levels for consistency."
+            },
+            {
+                id: 11,
+                name: "Tandoori Chicken",
+                emoji: "🍗",
+                category: "lunch",
+                cuisine: "North Indian",
+                prepTime: "40 mins",
+                cookTime: "30 mins",
+                servings: "4",
+                description: "Yogurt marinated chicken cooked in a traditional tandoor oven until smoky and tender.",
+                ingredients: [
+                    "1 kg chicken, cut into pieces",
+                    "1 cup yogurt",
+                    "3 tbsp ginger-garlic paste",
+                    "2 tbsp lemon juice",
+                    "2 tbsp oil",
+                    "1 tbsp red chili powder",
+                    "2 tsp garam masala",
+                    "1/2 tsp turmeric",
+                    "1 tsp cumin powder",
+                    "Salt to taste",
+                    "1/2 tsp black pepper",
+                    "Fresh coriander and mint"
+                ],
+                instructions: [
+                    "Make slits on the chicken pieces.",
+                    "Mix yogurt, ginger-garlic paste, lemon juice, and all spices.",
+                    "Marinate chicken for 30 minutes.",
+                    "Preheat oven to 220°C.",
+                    "Place marinated chicken on skewers or a baking tray.",
+                    "Brush with oil and bake for 25-30 minutes.",
+                    "Turn and brush again halfway through.",
+                    "Cook until chicken is cooked through and slightly charred.",
+                    "Serve with lemon wedges and onion rings.",
+                ],
+                tip: "Test the marination spice balance with Satvik Savor before cooking to ensure every tandoori chicken batch is perfectly seasoned."
+            },
+            {
+                id: 12,
+                name: "Kheer (Rice Pudding)",
+                emoji: "🍮",
+                category: "dessert",
+                cuisine: "North Indian",
+                prepTime: "15 mins",
+                cookTime: "40 mins",
+                servings: "6",
+                description: "Creamy rice pudding infused with cardamom, saffron, and garnished with nuts.",
+                ingredients: [
+                    "1/2 cup basmati rice",
+                    "1 liter milk",
+                    "1/4 cup condensed milk",
+                    "4-5 green cardamom, crushed",
+                    "A few strands of saffron",
+                    "2 tbsp ghee",
+                    "20 almonds, chopped",
+                    "20 cashews, chopped",
+                    "20 pistachios, chopped",
+                    "1/4 tsp nutmeg powder"
+                ],
+                instructions: [
+                    "Wash rice and soak for 15 minutes.",
+                    "Heat ghee and fry nuts until golden. Set aside.",
+                    "In the same pan, add rice and cook for 2 minutes.",
+                    "Pour milk and bring to a boil.",
+                    "Simmer on low heat for 30 minutes, stirring occasionally.",
+                    "The rice should dissolve and thicken the milk.",
+                    "Add condensed milk and crushed cardamom.",
+                    "Soak saffron in warm milk and add to the kheer.",
+                    "Cook for 2-3 more minutes.",
+                    "Top with fried nuts and a pinch of nutmeg powder.",
+                    "Serve warm or chilled."
+                ],
+                tip: "Monitor the sweetness and cardamom flavor with Satvik Savor to maintain the perfect dessert profile for weddings and special occasions."
+            }
+        ];
+
+        // Initialize recipes on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            displayRecipes('all');
+
+            // Add filter button listeners
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    displayRecipes(this.dataset.filter);
+                });
+            });
+        });
+
+        function displayRecipes(category) {
+            const grid = document.getElementById('recipesGrid');
+            grid.innerHTML = '';
+
+            const filtered = category === 'all' 
+                ? recipes 
+                : recipes.filter(r => r.category === category);
+
+            filtered.forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = 'recipe-card';
+                card.innerHTML = `
+                    <div class="recipe-image">${recipe.emoji}</div>
+                    <div class="recipe-content">
+                        <span class="recipe-category">${recipe.cuisine}</span>
+                        <h3 class="recipe-title">${recipe.name}</h3>
+                        <div class="recipe-meta">
+                            <div class="meta-item">⏱️ ${recipe.prepTime}</div>
+                            <div class="meta-item">🔥 ${recipe.cookTime}</div>
+                            <div class="meta-item">🍽️ ${recipe.servings}</div>
+                        </div>
+                        <p class="recipe-description">${recipe.description}</p>
+                        <button class="view-recipe-btn" onclick="openModal(${recipe.id})">View Recipe</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openModal(recipeId) {
+            const recipe = recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+
+            document.getElementById('modalTitle').textContent = recipe.name;
+            
+            const ingredientsList = document.getElementById('modalIngredients');
+            ingredientsList.innerHTML = recipe.ingredients
+                .map(ing => `<li>${ing}</li>`)
+                .join('');
+
+            const instructionsList = document.getElementById('modalInstructions');
+            instructionsList.innerHTML = recipe.instructions
+                .map(ins => `<li>${ins}</li>`)
+                .join('');
+
+            document.getElementById('modalTip').textContent = recipe.tip;
+
+            document.getElementById('recipeModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('recipeModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('recipeModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
